@@ -1,4 +1,4 @@
-from flask import Flask, Response, jsonify
+from flask import Flask, Response, jsonify, request
 import boto3
 
 from src.utils import replace_decimals
@@ -31,9 +31,10 @@ def get_crime_data(table_name):
       responses:
         200
     """
+    limit = 10 if request.args.get('limit') is None else int(request.args.get('limit'))
     table = dynamo_client.Table(table_name)
 
-    response = table.scan()
+    response = table.scan(Limit=limit)
 
     # Parses the boto3 Decimal objects into native Py integers
     parsed_items = replace_decimals(response["Items"])
