@@ -39,6 +39,7 @@ def get_crime_data(table_name):
 
     if filter_value_present:
       response = table.scan(
+          Limit=limit
           FilterExpression="Calendar_Year = :Calendar_Year",
           ExpressionAttributeValues={
           ":Calendar_Year": int(request.args.get('year'))
