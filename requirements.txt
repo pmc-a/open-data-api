@@ -1,2 +1,4 @@
 Flask==1.1.2
 boto3==1.16.56
+apispec==4.0.0
+apispec-webframeworks==0.5.2
