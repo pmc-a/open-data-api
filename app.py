@@ -35,20 +35,37 @@ def get_crime_data(table_name):
     limit = 10 if request.args.get('limit') is None else int(request.args.get('limit'))
     table = dynamo_client.Table(table_name)
 
-    filter_value_present = False if request.args.get('year') is None else True
-
-    if filter_value_present:
-      response = table.scan(
-          Limit=limit
-          FilterExpression="Calendar_Year = :Calendar_Year",
-          ExpressionAttributeValues={
-          ":Calendar_Year": int(request.args.get('year'))
-          }
-      )
-    else:
-      response = table.scan(Limit=limit)
+    response = table.scan(Limit=limit)
 
     # Parses the boto3 Decimal objects into native Py integers
     parsed_items = replace_decimals(response["Items"])
 
     return jsonify(parsed_items)
+
+
+@app.route("/crime/<table_name>/year/<year>", methods=['GET'])
+def get_crime_data_by_year(table_name, year):
+    """
+    Crime data
+    ---
+    get:
+      description: Get crime data by year
+      responses:
+        200
+    """
+    table = dynamo_client.Table(table_name)
+
+    if year is None:
+      return Response(status=400)
+    else:
+      response = table.scan(
+          FilterExpression="Calendar_Year = :Calendar_Year",
+          ExpressionAttributeValues={
+          ":Calendar_Year": int(year)
+          }
+      )
+      
+      # Parses the boto3 Decimal objects into native Py integers
+      parsed_items = replace_decimals(response["Items"])
+
+      return jsonify(parsed_items)
